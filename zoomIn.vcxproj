@@ -136,6 +136,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="include\Utility.cpp" />
+    <ClCompile Include="src\ScreenD2D.cpp" />
     <ClCompile Include="src\zoomIn.cpp" />
     <ClCompile Include="src\zoomInDialog.cpp" />
   </ItemGroup>
@@ -146,6 +147,7 @@
     <ClInclude Include="include\Direct2DEx.h" />
     <ClInclude Include="include\framework.h" />
     <ClInclude Include="include\Resource.h" />
+    <ClInclude Include="include\ScreenD2D.h" />
     <ClInclude Include="include\targetver.h" />
     <ClInclude Include="include\Utility.h" />
     <ClInclude Include="include\WindowDialog.h" />

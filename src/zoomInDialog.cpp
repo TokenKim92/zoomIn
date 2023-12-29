@@ -1,6 +1,7 @@
 #include "zoomInDialog.h"
 #include "ColorPalette.h"
 #include "Utility.h"
+#include "ScreenD2D.h"
 
 #ifdef _DEBUG
 #pragma comment (lib, "AppTemplateDebug.lib")
@@ -45,6 +46,13 @@ void zoomInDialog::OnInitDialog()
 	m_valueRect.top = m_indicateRect.top + offset;
 	m_valueRect.right = m_indicateRect.right - offset;
 	m_valueRect.bottom = m_indicateRect.bottom - offset;
+
+	auto p_direct2d = new ScreenD2D(mh_window, &viewRect, &viewRect);
+	p_direct2d->Create();
+	p_direct2d->InitScreenBitmap();
+	p_direct2d->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+
+	InheritDirect2D(p_direct2d);
 }
 
 void zoomInDialog::OnDestroy()
@@ -55,6 +63,8 @@ void zoomInDialog::OnDestroy()
 void zoomInDialog::OnPaint()
 {
 	mp_direct2d->Clear();
+	static_cast<ScreenD2D *>(mp_direct2d)->DrawScreenBitmap();
+
 	DrawIndicate();
 }
 
