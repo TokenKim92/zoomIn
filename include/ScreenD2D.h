@@ -9,6 +9,7 @@ class ScreenD2D : public Direct2DEx
 protected:
 	HDC mh_memDC;
 	HBITMAP mh_memBitmap;
+	HBRUSH mh_memBrush;
 
 	SIZE m_viewSize;
 	DRect m_viewRect;
@@ -19,8 +20,9 @@ public:
 	ScreenD2D(HWND ah_wnd, const RECT *const ap_viewRect);
 	virtual ~ScreenD2D();
 
-	bool CreateImage(const unsigned short a_imageSize);
-	void DestroyImage();
+	bool CreateMemoryImage(const unsigned short a_imageSize);
+	void DestroyMemoryImage();
+	void ClearMemoryImage();
 	void DrawImage(const POINT &a_pos);
 	DColor GetPixelOnMousePos(const POINT &a_pos);
 };

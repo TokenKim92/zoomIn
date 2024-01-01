@@ -74,7 +74,7 @@ void zoomInDialog::OnInitDialog()
 
 	auto p_direct2d = new ScreenD2D(mh_window, &m_viewRect);
 	p_direct2d->Create();
-	p_direct2d->CreateImage(m_imageSize);
+	p_direct2d->CreateMemoryImage(m_imageSize);
 	p_direct2d->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 	InheritDirect2D(p_direct2d);
 
@@ -96,7 +96,29 @@ void zoomInDialog::OnDestroy()
 void zoomInDialog::OnPaint()
 {
 	mp_direct2d->Clear();
+	static_cast<ScreenD2D *>(mp_direct2d)->ClearMemoryImage();
 	DrawIndicate();
+}
+
+void zoomInDialog::OnSetThemeMode()
+{
+	if (THEME_MODE::LIGHT_MODE == GetThemeMode()) {
+		m_indicateBackgroundColor = RGB_TO_COLORF(ZINC_50);
+		m_indicateBorderColor = RGB_TO_COLORF(NEUTRAL_800);
+		m_selectedColor = RGB_TO_COLORF(ZINC_200);
+		m_textColor = RGB_TO_COLORF(NEUTRAL_600);
+	}
+	else {
+		m_indicateBackgroundColor = RGB_TO_COLORF(ZINC_700);
+		m_indicateBorderColor = RGB_TO_COLORF(NEUTRAL_50);
+		m_selectedColor = RGB_TO_COLORF(NEUTRAL_800);
+		m_textColor = RGB_TO_COLORF(NEUTRAL_100);
+	}
+
+	m_mousePos.x = 0;
+	m_mousePos.y = 0;
+	mp_direct2d->SetBackgroundColor(m_selectedColor);
+	::InvalidateRect(mh_window, &m_viewRect, false);
 }
 
 // to handle the WM_MOUSEMOVE message that occurs when a window is destroyed
@@ -177,8 +199,8 @@ int zoomInDialog::MouseWheelHandler(WPARAM a_wordParam, LPARAM a_longParam)
 		}
 	}
 
-	static_cast<ScreenD2D *>(mp_direct2d)->DestroyImage();
-	static_cast<ScreenD2D *>(mp_direct2d)->CreateImage(m_imageSize);
+	static_cast<ScreenD2D *>(mp_direct2d)->DestroyMemoryImage();
+	static_cast<ScreenD2D *>(mp_direct2d)->CreateMemoryImage(m_imageSize);
 	StretchScreenImage(m_mousePos);
 
 	return S_OK;
@@ -219,7 +241,9 @@ void zoomInDialog::StretchScreenImage(const POINT &a_pos)
 	mp_direct2d->BeginDraw();
 
 	mp_direct2d->Clear();
-	static_cast<ScreenD2D *>(mp_direct2d)->DrawImage(a_pos);
+	if (0 != a_pos.x && 0 != a_pos.y) {
+		static_cast<ScreenD2D *>(mp_direct2d)->DrawImage(a_pos);
+	}
 	DrawIndicate();
 
 	mp_direct2d->EndDraw();

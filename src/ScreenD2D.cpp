@@ -8,6 +8,7 @@ ScreenD2D::ScreenD2D(HWND ah_wnd, const RECT *const ap_viewRect)
 {
 	mh_memDC = nullptr;
 	mh_memBitmap = nullptr;
+	mh_memBrush = nullptr;
 
 	m_viewSize = {
 		ap_viewRect->right - ap_viewRect->left,
@@ -25,23 +26,33 @@ ScreenD2D::ScreenD2D(HWND ah_wnd, const RECT *const ap_viewRect)
 
 ScreenD2D::~ScreenD2D()
 {
-	DestroyImage();
+	DestroyMemoryImage();
 }
 
-bool ScreenD2D::CreateImage(const unsigned short a_imageSize)
+bool ScreenD2D::CreateMemoryImage(const unsigned short a_imageSize)
 {
 	m_imageSize = a_imageSize;
 	m_imageHalfSize = a_imageSize / 2;
 
 	HDC h_screenDC = ::GetWindowDC(nullptr);
+	if (nullptr == h_screenDC) {
+		return false;
+	}
+
 	HDC h_memDC = ::CreateCompatibleDC(h_screenDC);
 	if (nullptr == h_memDC) {
-			return false;
+		::ReleaseDC(nullptr, h_screenDC);
+
+		return false;
 	}
 	mh_memDC = h_memDC;
 
 	HBITMAP h_tempBitmap = ::CreateCompatibleBitmap(h_screenDC, a_imageSize, a_imageSize);
 	if (nullptr == h_tempBitmap) {
+		::DeleteDC(mh_memDC);
+		mh_memDC = nullptr;
+		::ReleaseDC(nullptr, h_screenDC);
+
 		return false;
 	}
 
@@ -58,15 +69,39 @@ bool ScreenD2D::CreateImage(const unsigned short a_imageSize)
 	bitmapInfo.bmiHeader.biCompression = bitmap.bmType;
 	bitmapInfo.bmiHeader.biSizeImage = bitmap.bmHeight * bitmap.bmWidth * bitmap.bmBitsPixel;
 
-	// create a bitmap and set the first memory address of the bitmap to `mp_dibBitx`
 	unsigned char *p_dump;
 	HBITMAP h_memBitmap = CreateDIBSection(mh_memDC, &bitmapInfo, DIB_RGB_COLORS, (void **)&p_dump, nullptr, 0);
 	if (nullptr == h_memBitmap) {
+		::DeleteObject(h_tempBitmap);
+		::DeleteDC(mh_memDC);
+		mh_memDC = nullptr;
+		::ReleaseDC(nullptr, h_screenDC);
+
 		return false;
 	}
-
 	mh_memBitmap = h_memBitmap;
+
+	HBRUSH h_memBrush = CreateSolidBrush(
+		RGB(
+			static_cast<int>(m_backgroundColor.r * 255),
+			static_cast<int>(m_backgroundColor.g * 255), 
+			static_cast<int>(m_backgroundColor.b * 255)
+		)
+	);
+	if (nullptr == h_memBrush) {
+		::DeleteObject(mh_memBitmap);
+		mh_memBitmap = nullptr;
+		::DeleteObject(h_tempBitmap);
+		::DeleteDC(mh_memDC);
+		mh_memDC = nullptr;
+		::ReleaseDC(nullptr, h_screenDC);
+
+		return false;
+	}
+	mh_memBrush = h_memBrush;
+
 	::SelectObject(mh_memDC, mh_memBitmap);
+	::SelectObject(mh_memDC, mh_memBrush);
 
 	::DeleteObject(h_tempBitmap);
 	::ReleaseDC(nullptr, h_screenDC);
@@ -74,19 +109,45 @@ bool ScreenD2D::CreateImage(const unsigned short a_imageSize)
 	return true;
 }
 
-void ScreenD2D::DestroyImage()
+void ScreenD2D::DestroyMemoryImage()
 {
 	if (nullptr != mh_memDC) {
 		::DeleteDC(mh_memDC);
+		mh_memDC = nullptr;
 	}
 	if (nullptr != mh_memBitmap) {
 		::DeleteObject(mh_memBitmap);
+		mh_memBitmap = nullptr;
+	}
+	if (nullptr != mh_memBrush) {
+		::DeleteObject(mh_memBrush);
+		mh_memBrush = nullptr;
+	}
+}
+
+void ScreenD2D::ClearMemoryImage()
+{
+	HBRUSH h_memBrush = CreateSolidBrush(
+		RGB(
+			static_cast<int>(m_backgroundColor.r * 255),
+			static_cast<int>(m_backgroundColor.g * 255),
+			static_cast<int>(m_backgroundColor.b * 255)
+		)
+	);
+
+	if (nullptr != h_memBrush) {
+		::DeleteObject(mh_memBrush);
+
+		mh_memBrush = h_memBrush;
+		::SelectObject(mh_memDC, mh_memBrush);
+		::Rectangle(mh_memDC, -1, -1, m_imageSize + 1, m_imageSize + 1);
 	}
 }
 
 void ScreenD2D::DrawImage(const POINT &a_pos)
 {
 	HDC h_screenDC = ::GetWindowDC(nullptr);
+	::Rectangle(mh_memDC, -1, -1, m_imageSize + 1, m_imageSize + 1);
 	::BitBlt(
 		mh_memDC,
 		0, 0, m_imageSize, m_imageSize,

@@ -27,6 +27,9 @@
     <ClCompile Include="include\Utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ScreenD2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\framework.h">
@@ -52,6 +55,9 @@
     </ClInclude>
     <ClInclude Include="include\Direct2DEx.h">
       <Filter>Header Files\base</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ScreenD2D.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\WindowDialog.h">
       <Filter>Header Files\base</Filter>
