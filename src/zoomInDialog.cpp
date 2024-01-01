@@ -43,8 +43,7 @@ zoomInDialog::zoomInDialog() :
 	m_hoverOnIndicate = false;
 	m_clickedOnIndicate = false;
 	memset(&m_mousePos, 0, sizeof(POINT));
-	//m_imageSize = 32;
-	m_imageSize = 300;
+	m_imageSize = 32;
 }
 
 zoomInDialog::~zoomInDialog()

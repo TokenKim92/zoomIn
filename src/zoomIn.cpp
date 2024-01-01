@@ -15,7 +15,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE ah_instance, _In_opt_ HINSTANCE ah_notUseIn
     ApplicationCore appCore(ah_instance);
     if (S_OK == appCore.Create()) {
         zoomInDialog dialog;
-        return dialog.Create(300, 300);
+        dialog.SetExtendStyle(WS_EX_TOPMOST);
+        return dialog.Create(256, 256);
     }
 
     return 0;
