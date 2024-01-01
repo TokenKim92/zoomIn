@@ -9,25 +9,20 @@ class ScreenD2D : public Direct2DEx
 protected:
 	HDC mh_memDC;
 	HBITMAP mh_memBitmap;
-	ID2D1Bitmap *mp_screenBitmap;
 
-	POINT m_srcPoint;
-	D2D1_RECT_F m_destRect;
-	SIZE m_bitmapSize;
+	DRect m_destRect;
+	unsigned short m_imageSize;
+	unsigned short m_imageHalfSize;
+
 	unsigned char *mp_dibBits;
 	unsigned int m_dibBitsSize;
-	unsigned char m_screenBrightness;
 
 public:
-	ScreenD2D(HWND ah_wnd, const RECT *const ap_scaledRect, const RECT *const ap_orgRect);
+	ScreenD2D(HWND ah_wnd, const RECT *const ap_viewRect);
 	virtual ~ScreenD2D();
 
-	virtual int Create();
-
-	bool InitScreenBitmap();
-	void ReleaseScreenBitmap();
-	void DrawScreenBitmap(const D2D1_RECT_F *const ap_rect = nullptr);
-	unsigned char GetScreenBrightness();
+	bool CreateImage(const unsigned short a_imageSize);
+	void DrawImage(const POINT &a_pos);
 };
 
 #endif // !_SCREEN_D2D_H_

@@ -17,10 +17,14 @@ protected:
 
 	bool m_hoverOnIndicate;
 	bool m_clickedOnIndicate;
+	POINT m_mousePos;
 
 public:
 	zoomInDialog();
 	virtual ~zoomInDialog();
+
+	void StretchScreenImage(const POINT &a_pos);
+	void SetMousePos(const POINT &a_pos);
 
 protected:
 	void DrawIndicate();

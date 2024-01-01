@@ -9,6 +9,24 @@
 #pragma comment (lib, "AppTemplate.lib")     
 #endif
 
+#define IMAGE_SIZE	128
+
+void __stdcall MouseTrackTimer(HWND ah_window, UINT a_msg, UINT_PTR ap_data, DWORD dwTime)
+{
+	if (::GetAsyncKeyState(VK_SHIFT)) {
+		auto p_zoomInDialog = reinterpret_cast<zoomInDialog*>(ap_data);
+
+		POINT mousePos;
+		::GetCursorPos(&mousePos);
+		HWND h_windowOnMouse = GetWindowHandleOnMouse(mousePos);
+		
+		if (h_windowOnMouse != ah_window) {
+			p_zoomInDialog->StretchScreenImage(mousePos);
+			p_zoomInDialog->SetMousePos(mousePos);
+		}
+	}
+}
+
 zoomInDialog::zoomInDialog() :
 	WindowDialog(L"ZOOMIN", L"zoomIn")
 {
@@ -26,6 +44,7 @@ zoomInDialog::zoomInDialog() :
 
 	m_hoverOnIndicate = false;
 	m_clickedOnIndicate = false;
+	memset(&m_mousePos, 0, sizeof(POINT));
 }
 
 zoomInDialog::~zoomInDialog()
@@ -54,28 +73,29 @@ void zoomInDialog::OnInitDialog()
 	m_valueRect.right = m_indicateRect.right - offset;
 	m_valueRect.bottom = m_indicateRect.bottom - offset;
 
-	auto p_direct2d = new ScreenD2D(mh_window, &m_viewRect, &m_viewRect);
+	auto p_direct2d = new ScreenD2D(mh_window, &m_viewRect);
 	p_direct2d->Create();
-	p_direct2d->InitScreenBitmap();
+	p_direct2d->CreateImage(IMAGE_SIZE);
 	p_direct2d->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 	InheritDirect2D(p_direct2d);
 
 	// add message handlers
-	AddMessageHandler(WM_MOUSEMOVE, (MessageHandler)&zoomInDialog::MouseMoveHandler);
-	AddMessageHandler(WM_LBUTTONDOWN, (MessageHandler)&zoomInDialog::MouseLeftButtonDownHandler);
-	AddMessageHandler(WM_LBUTTONUP, (MessageHandler)&zoomInDialog::MouseLeftButtonUpHandler);
+	AddMessageHandler(WM_MOUSEMOVE, static_cast<MessageHandler>(&zoomInDialog::MouseMoveHandler));
+	AddMessageHandler(WM_LBUTTONDOWN, static_cast<MessageHandler>(&zoomInDialog::MouseLeftButtonDownHandler));
+	AddMessageHandler(WM_LBUTTONUP, static_cast<MessageHandler>(&zoomInDialog::MouseLeftButtonUpHandler));
+
+	const unsigned int fps = 30;
+	::SetTimer(mh_window, reinterpret_cast<unsigned int>(this), 1000 / fps, MouseTrackTimer);
 }
 
 void zoomInDialog::OnDestroy()
 {
-
+	::KillTimer(mh_window, reinterpret_cast<unsigned int>(this));
 }
 
 void zoomInDialog::OnPaint()
 {
 	mp_direct2d->Clear();
-	static_cast<ScreenD2D *>(mp_direct2d)->DrawScreenBitmap();
-
 	DrawIndicate();
 }
 
@@ -87,13 +107,13 @@ int zoomInDialog::MouseMoveHandler(WPARAM a_wordParam, LPARAM a_longParam)
 	if (PointInRectF(m_indicateRect, pos)) {
 		if (!m_hoverOnIndicate) {
 			m_hoverOnIndicate = true;
-			InvalidateRect(mh_window, &m_viewRect, false);
+			StretchScreenImage(m_mousePos);
 		}
 	}
 	else {
 		if (m_hoverOnIndicate) {
 			m_hoverOnIndicate = false;
-			InvalidateRect(mh_window, &m_viewRect, false);
+			StretchScreenImage(m_mousePos);
 		}
 	}
 
@@ -134,14 +154,13 @@ int zoomInDialog::MouseLeftButtonUpHandler(WPARAM a_wordParam, LPARAM a_longPara
 
 void zoomInDialog::DrawIndicate()
 {
-	float transparency = m_hoverOnIndicate ? 1.0f : 0.8f;
+	float transparency = m_hoverOnIndicate ? 1.0f : 0.7f;
 	if (m_clickedOnIndicate) {
 		transparency = 0.8f;
 	}
 	
 	m_indicateBackgroundColor.a = transparency;
 	m_indicateBorderColor.a = transparency;
-	m_selectedColor.a = transparency;
 	m_textColor.a = transparency;
 
 	// draw background
@@ -160,4 +179,20 @@ void zoomInDialog::DrawIndicate()
 		FloatToHexWString(m_selectedColor.g) + 
 		FloatToHexWString(m_selectedColor.b);
 	mp_direct2d->DrawUserText(rgbText.c_str(), m_valueRect);
+}
+
+void zoomInDialog::StretchScreenImage(const POINT &a_pos)
+{
+	mp_direct2d->BeginDraw();
+
+	mp_direct2d->Clear();
+	static_cast<ScreenD2D *>(mp_direct2d)->DrawImage(a_pos);
+	DrawIndicate();
+
+	mp_direct2d->EndDraw();
+};
+
+void zoomInDialog::SetMousePos(const POINT &a_pos)
+{
+	m_mousePos = a_pos;
 }

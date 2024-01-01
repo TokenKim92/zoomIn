@@ -45,3 +45,17 @@ bool CopyTextToClipboard(HWND ah_wnd, const std::wstring &a_string)
 	::GlobalUnlock(h_data);
 	return true;
 }
+
+HWND GetWindowHandleOnMouse(POINT &a_pos)
+{
+	HWND h_window = ::WindowFromPoint(a_pos);
+	if (nullptr == h_window) {
+		return nullptr;
+	}
+
+	POINT pos = a_pos;
+	::ScreenToClient(h_window, &pos);
+	HWND h_childWindow = ::ChildWindowFromPoint(h_window, pos);
+
+	return (nullptr == h_childWindow) ? h_window : h_childWindow;
+}
