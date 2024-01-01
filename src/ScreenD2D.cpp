@@ -23,12 +23,7 @@ ScreenD2D::ScreenD2D(HWND ah_wnd, const RECT *const ap_viewRect)
 
 ScreenD2D::~ScreenD2D()
 {
-	if (nullptr != mh_memDC) {
-		::DeleteDC(mh_memDC);
-	}
-	if (nullptr != mh_memBitmap) {
-		::DeleteObject(mh_memBitmap);
-	}
+	DestroyImage();
 }
 
 bool ScreenD2D::CreateImage(const unsigned short a_imageSize)
@@ -75,6 +70,20 @@ bool ScreenD2D::CreateImage(const unsigned short a_imageSize)
 	::ReleaseDC(nullptr, h_screenDC);
 
 	return true;
+}
+
+void ScreenD2D::DestroyImage()
+{
+	if (nullptr != mh_memDC) {
+		::DeleteDC(mh_memDC);
+	}
+	if (nullptr != mh_memBitmap) {
+		::DeleteObject(mh_memBitmap);
+	}
+	if (nullptr != mp_dibBits) {
+		mp_dibBits = nullptr;
+	}
+	m_dibBitsSize = 0;
 }
 
 void ScreenD2D::DrawImage(const POINT &a_pos)

@@ -18,6 +18,7 @@ protected:
 	bool m_hoverOnIndicate;
 	bool m_clickedOnIndicate;
 	POINT m_mousePos;
+	unsigned int m_imageSize;
 
 public:
 	zoomInDialog();
@@ -39,6 +40,8 @@ protected:
 	int MouseLeftButtonDownHandler(WPARAM a_wordParam, LPARAM a_longParam);
 	// to handle the WM_LBUTTONUP  message that occurs when a window is destroyed
 	int MouseLeftButtonUpHandler(WPARAM a_wordParam, LPARAM a_longParam);
+	// to handle the WM_MOUSEWHEEL  message that occurs when a window is destroyed
+	int MouseWheelHandler(WPARAM a_wordParam, LPARAM a_longParam);
 };
 
 #endif //_ZOOM_IN_DIALOG_H_

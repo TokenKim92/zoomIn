@@ -22,6 +22,7 @@ public:
 	virtual ~ScreenD2D();
 
 	bool CreateImage(const unsigned short a_imageSize);
+	void DestroyImage();
 	void DrawImage(const POINT &a_pos);
 };
 

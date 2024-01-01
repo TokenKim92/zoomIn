@@ -9,8 +9,6 @@
 #pragma comment (lib, "AppTemplate.lib")     
 #endif
 
-#define IMAGE_SIZE	128
-
 void __stdcall MouseTrackTimer(HWND ah_window, UINT a_msg, UINT_PTR ap_data, DWORD dwTime)
 {
 	if (::GetAsyncKeyState(VK_SHIFT)) {
@@ -45,6 +43,7 @@ zoomInDialog::zoomInDialog() :
 	m_hoverOnIndicate = false;
 	m_clickedOnIndicate = false;
 	memset(&m_mousePos, 0, sizeof(POINT));
+	m_imageSize = 32;
 }
 
 zoomInDialog::~zoomInDialog()
@@ -75,7 +74,7 @@ void zoomInDialog::OnInitDialog()
 
 	auto p_direct2d = new ScreenD2D(mh_window, &m_viewRect);
 	p_direct2d->Create();
-	p_direct2d->CreateImage(IMAGE_SIZE);
+	p_direct2d->CreateImage(m_imageSize);
 	p_direct2d->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 	InheritDirect2D(p_direct2d);
 
@@ -83,6 +82,7 @@ void zoomInDialog::OnInitDialog()
 	AddMessageHandler(WM_MOUSEMOVE, static_cast<MessageHandler>(&zoomInDialog::MouseMoveHandler));
 	AddMessageHandler(WM_LBUTTONDOWN, static_cast<MessageHandler>(&zoomInDialog::MouseLeftButtonDownHandler));
 	AddMessageHandler(WM_LBUTTONUP, static_cast<MessageHandler>(&zoomInDialog::MouseLeftButtonUpHandler));
+	AddMessageHandler(WM_MOUSEWHEEL, static_cast<MessageHandler>(&zoomInDialog::MouseWheelHandler));
 
 	const unsigned int fps = 30;
 	::SetTimer(mh_window, reinterpret_cast<unsigned int>(this), 1000 / fps, MouseTrackTimer);
@@ -127,7 +127,7 @@ int zoomInDialog::MouseLeftButtonDownHandler(WPARAM a_wordParam, LPARAM a_longPa
 
 	if (PointInRectF(m_indicateRect, pos)) {
 		m_clickedOnIndicate = true;
-		InvalidateRect(mh_window, &m_viewRect, false);
+		StretchScreenImage(m_mousePos);
 
 		std::wstring rgbText =
 			FloatToHexWString(m_selectedColor.r) +
@@ -146,8 +146,36 @@ int zoomInDialog::MouseLeftButtonUpHandler(WPARAM a_wordParam, LPARAM a_longPara
 	//const POINT pos = { LOWORD(a_longParam), HIWORD(a_longParam) };
 	if (m_clickedOnIndicate) {
 		m_clickedOnIndicate = false;
-		InvalidateRect(mh_window, &m_viewRect, false);
+		StretchScreenImage(m_mousePos);
 	}
+
+	return S_OK;
+}
+
+// to handle the WM_MOUSEWHEEL  message that occurs when a window is destroyed
+int zoomInDialog::MouseWheelHandler(WPARAM a_wordParam, LPARAM a_longParam)
+{
+	static const unsigned int MAX_IMAGW_SIZE = 128;
+	static const unsigned int MIN_IMAGW_SIZE = 32;
+
+	short delta = GET_WHEEL_DELTA_WPARAM(a_wordParam);
+
+	if (delta < 0 ) {
+		if (m_imageSize <= MAX_IMAGW_SIZE) {
+			// Zoom out
+			m_imageSize *= 2;
+		}
+	}
+	else {
+		if (m_imageSize >= MIN_IMAGW_SIZE) {
+			// Zoom in
+			m_imageSize /= 2;
+		}
+	}
+
+	static_cast<ScreenD2D *>(mp_direct2d)->DestroyImage();
+	static_cast<ScreenD2D *>(mp_direct2d)->CreateImage(m_imageSize);
+	StretchScreenImage(m_mousePos);
 
 	return S_OK;
 }
