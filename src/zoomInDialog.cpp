@@ -35,15 +35,16 @@ zoomInDialog::zoomInDialog() :
 	memset(&m_colorRect, 0, sizeof(DRect));
 	memset(&m_valueRect, 0, sizeof(DRect));
 
-	m_indicateBackgroundColor = RGB_TO_COLORF(NEUTRAL_400);
+	m_indicateBackgroundColor = RGB_TO_COLORF(ZINC_700);
 	m_indicateBorderColor = RGB_TO_COLORF(NEUTRAL_50);
 	m_selectedColor = RGB_TO_COLORF(NEUTRAL_800);
-	m_textColor = RGB_TO_COLORF(NEUTRAL_800);
+	m_textColor = RGB_TO_COLORF(NEUTRAL_100);
 
 	m_hoverOnIndicate = false;
 	m_clickedOnIndicate = false;
 	memset(&m_mousePos, 0, sizeof(POINT));
-	m_imageSize = 32;
+	//m_imageSize = 32;
+	m_imageSize = 300;
 }
 
 zoomInDialog::~zoomInDialog()
@@ -136,6 +137,10 @@ int zoomInDialog::MouseLeftButtonDownHandler(WPARAM a_wordParam, LPARAM a_longPa
 
 		CopyTextToClipboard(mh_window, rgbText);
 	}
+	else {
+		m_selectedColor = static_cast<ScreenD2D *>(mp_direct2d)->GetPixelOnMousePos(pos);
+		StretchScreenImage(m_mousePos);
+	}
 
 	return S_OK;
 }
@@ -202,6 +207,7 @@ void zoomInDialog::DrawIndicate()
 	mp_direct2d->FillRoundedRectangle(m_colorRect, 5.0f);
 
 	// draw color value
+	mp_direct2d->SetBrushColor(m_textColor);
 	std::wstring rgbText = L"#" +
 		FloatToHexWString(m_selectedColor.r) + 
 		FloatToHexWString(m_selectedColor.g) + 

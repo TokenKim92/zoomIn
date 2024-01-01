@@ -10,12 +10,10 @@ protected:
 	HDC mh_memDC;
 	HBITMAP mh_memBitmap;
 
-	DRect m_destRect;
+	SIZE m_viewSize;
+	DRect m_viewRect;
 	unsigned short m_imageSize;
 	unsigned short m_imageHalfSize;
-
-	unsigned char *mp_dibBits;
-	unsigned int m_dibBitsSize;
 
 public:
 	ScreenD2D(HWND ah_wnd, const RECT *const ap_viewRect);
@@ -24,6 +22,7 @@ public:
 	bool CreateImage(const unsigned short a_imageSize);
 	void DestroyImage();
 	void DrawImage(const POINT &a_pos);
+	DColor GetPixelOnMousePos(const POINT &a_pos);
 };
 
 #endif // !_SCREEN_D2D_H_

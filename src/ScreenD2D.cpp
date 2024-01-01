@@ -9,7 +9,11 @@ ScreenD2D::ScreenD2D(HWND ah_wnd, const RECT *const ap_viewRect)
 	mh_memDC = nullptr;
 	mh_memBitmap = nullptr;
 
-	m_destRect = {
+	m_viewSize = {
+		ap_viewRect->right - ap_viewRect->left,
+		ap_viewRect->bottom - ap_viewRect->top
+	};
+	m_viewRect = {
 		0,
 		0,
 		static_cast<float>(ap_viewRect->right - ap_viewRect->left),
@@ -17,8 +21,6 @@ ScreenD2D::ScreenD2D(HWND ah_wnd, const RECT *const ap_viewRect)
 	};
 	m_imageSize = 0;
 	m_imageHalfSize = 0;
-	mp_dibBits = nullptr;
-	m_dibBitsSize = 0;
 }
 
 ScreenD2D::~ScreenD2D()
@@ -57,13 +59,13 @@ bool ScreenD2D::CreateImage(const unsigned short a_imageSize)
 	bitmapInfo.bmiHeader.biSizeImage = bitmap.bmHeight * bitmap.bmWidth * bitmap.bmBitsPixel;
 
 	// create a bitmap and set the first memory address of the bitmap to `mp_dibBitx`
-	HBITMAP h_memBitmap = CreateDIBSection(mh_memDC, &bitmapInfo, DIB_RGB_COLORS, (void **)&mp_dibBits, nullptr, 0);
+	unsigned char *p_dump;
+	HBITMAP h_memBitmap = CreateDIBSection(mh_memDC, &bitmapInfo, DIB_RGB_COLORS, (void **)&p_dump, nullptr, 0);
 	if (nullptr == h_memBitmap) {
 		return false;
 	}
 
 	mh_memBitmap = h_memBitmap;
-	m_dibBitsSize = bitmap.bmHeight * bitmap.bmWidthBytes;
 	::SelectObject(mh_memDC, mh_memBitmap);
 
 	::DeleteObject(h_tempBitmap);
@@ -80,10 +82,6 @@ void ScreenD2D::DestroyImage()
 	if (nullptr != mh_memBitmap) {
 		::DeleteObject(mh_memBitmap);
 	}
-	if (nullptr != mp_dibBits) {
-		mp_dibBits = nullptr;
-	}
-	m_dibBitsSize = 0;
 }
 
 void ScreenD2D::DrawImage(const POINT &a_pos)
@@ -124,9 +122,23 @@ void ScreenD2D::DrawImage(const POINT &a_pos)
 		return;
 	}
 
-	mp_renderTarget->DrawBitmap(p_screenBitmap, &m_destRect);
+	mp_renderTarget->DrawBitmap(p_screenBitmap, &m_viewRect);
 
 	p_screenBitmap->Release();
 	p_converter->Release();
 	p_wicBitmap->Release();
+}
+
+DColor ScreenD2D::GetPixelOnMousePos(const POINT &a_pos)
+{
+	const int posX = a_pos.x * m_imageSize / m_viewSize.cx;
+	const int posY = a_pos.y *m_imageSize / m_viewSize.cy;
+	const auto color = ::GetPixel(mh_memDC, posX, posY);
+
+	return DColor({
+		GetRValue(color) / 255.0f,
+		GetGValue(color) / 255.0f,
+		GetBValue(color) / 255.0f,
+		1.0f
+	});
 }
