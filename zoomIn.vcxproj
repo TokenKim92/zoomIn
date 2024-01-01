@@ -150,7 +150,14 @@
     <ClInclude Include="include\ScreenD2D.h" />
     <ClInclude Include="include\targetver.h" />
     <ClInclude Include="include\Utility.h" />
+    <ClInclude Include="include\WindowDialog.h" />
     <ClInclude Include="include\zoomInDialog.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="zoomIn.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resource\zoomIn.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
