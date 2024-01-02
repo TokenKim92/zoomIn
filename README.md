@@ -1,4 +1,4 @@
-# ZoomIn
+# zoomIn
 
 A Program using C++ to zoom window and select pixel color.
 
@@ -10,11 +10,9 @@ The website he runs is under this link: https://cafe.naver.com/mythread
 
 ## How to run
 
-Download as zip or clone the repository and run ZoomIn.exe. That's it!
+Even if there is no virus, man can't download the executable file on website, so you must download the project and build it yourself.
 
-Because it is an executable file, there are cases in `Edge` cannot download it when downloading with Zip.
-
-In this case, download it from `Chrome`.
+And run zoomIn.exe. That's it!
 
 ## How to use
 
@@ -27,11 +25,12 @@ You can select the zoom size ratio via `the mouse wheel`.
 ## Used tools
 
 - C++
-- MFC library
+- Win32 API (especially Direct2d)
 - Visual Studio
 
 ## Overview
 
-  <img src="./imgs/zoomin01.png" alt="zoomin01"/>
-  <img src="./imgs/zoomin02.png" alt="zoomin02"/>
-  <img src="./imgs/zoomin03.png" alt="zoomin03"/>
+  <img src="./imgs/zoomIn01.png" alt="zoomIn01"/>
+  <img src="./imgs/zoomIn02.png" alt="zoomIn02"/>
+  <img src="./imgs/zoomIn03.png" alt="zoomIn03"/>
+  <img src="./imgs/zoomIn04.png" alt="zoomIn03"/>
