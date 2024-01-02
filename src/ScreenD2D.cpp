@@ -70,7 +70,7 @@ bool ScreenD2D::CreateMemoryImage(const unsigned short a_imageSize)
 	bitmapInfo.bmiHeader.biSizeImage = bitmap.bmHeight * bitmap.bmWidth * bitmap.bmBitsPixel;
 
 	unsigned char *p_dump;
-	HBITMAP h_memBitmap = CreateDIBSection(mh_memDC, &bitmapInfo, DIB_RGB_COLORS, (void **)&p_dump, nullptr, 0);
+	HBITMAP h_memBitmap = CreateDIBSection(mh_memDC, &bitmapInfo, DIB_RGB_COLORS, reinterpret_cast<void **>(&p_dump), nullptr, 0);
 	if (nullptr == h_memBitmap) {
 		::DeleteObject(h_tempBitmap);
 		::DeleteDC(mh_memDC);
@@ -155,12 +155,12 @@ void ScreenD2D::DrawImage(const POINT &a_pos)
 		a_pos.x - m_imageHalfSize, a_pos.y - m_imageHalfSize,
 		SRCCOPY
 	);
-	::ReleaseDC(NULL, h_screenDC);
+	::ReleaseDC(nullptr, h_screenDC);
 
 	IWICBitmap *p_wicBitmap = nullptr;
 	IWICImagingFactory *p_wicFactory = gp_appCore->GetWICFactory();
 
-	if (S_OK != p_wicFactory->CreateBitmapFromHBITMAP(mh_memBitmap, NULL, WICBitmapUseAlpha, &p_wicBitmap)) {
+	if (S_OK != p_wicFactory->CreateBitmapFromHBITMAP(mh_memBitmap, nullptr, WICBitmapUseAlpha, &p_wicBitmap)) {
 		return;
 	}
 
@@ -170,14 +170,14 @@ void ScreenD2D::DrawImage(const POINT &a_pos)
 		return;
 	}
 
-	if (S_OK != p_converter->Initialize(p_wicBitmap, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0.0f, WICBitmapPaletteTypeCustom)) {
+	if (S_OK != p_converter->Initialize(p_wicBitmap, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, nullptr, 0.0f, WICBitmapPaletteTypeCustom)) {
 		p_converter->Release();
 		p_wicBitmap->Release();
 		return;
 	}
 
 	ID2D1Bitmap *p_screenBitmap;
-	if (S_OK != mp_renderTarget->CreateBitmapFromWicBitmap(p_converter, NULL, &p_screenBitmap)) {
+	if (S_OK != mp_renderTarget->CreateBitmapFromWicBitmap(p_converter, nullptr, &p_screenBitmap)) {
 		p_converter->Release();
 		p_wicBitmap->Release();
 		return;
