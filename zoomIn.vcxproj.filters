@@ -75,5 +75,8 @@
     <Image Include="resource\zoomIn.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="resource\small.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -157,6 +157,7 @@
     <ResourceCompile Include="zoomIn.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="resource\small.ico" />
     <Image Include="resource\zoomIn.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
