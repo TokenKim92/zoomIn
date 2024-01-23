@@ -5,7 +5,7 @@
 
 std::wstring FloatToHexWString(const float a_value)
 {
-	int integerValue = static_cast<unsigned char>(a_value * 255);
+	int integerValue = static_cast<int>(a_value * 255);
 
 	std::stringstream stream;
 	stream << std::setfill('0') << std::setw(2) << std::hex << integerValue;

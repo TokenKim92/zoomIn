@@ -16,11 +16,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE ah_instance, _In_opt_ HINSTANCE ah_notUseIn
     if (S_OK == appCore.Create()) {
         const int centerPosX = ::GetSystemMetrics(SM_CXSCREEN) / 2;
         const int centerPosY = ::GetSystemMetrics(SM_CYSCREEN) / 2;
-        const int size = 256;
 
         zoomInDialog dialog;
-        dialog.SetExtendStyle(WS_EX_TOPMOST);
-        return dialog.Create(size, size, centerPosX - size / 2, centerPosY - size / 2);
+        const SIZE dialogSize = dialog.GetSize();
+        return dialog.DoModal(nullptr, centerPosX - dialogSize.cx / 2, centerPosY - dialogSize.cy / 2);
     }
 
     return 0;

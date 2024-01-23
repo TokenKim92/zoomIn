@@ -28,6 +28,9 @@ void __stdcall MouseTrackTimer(HWND ah_window, UINT a_msg, UINT_PTR ap_data, DWO
 zoomInDialog::zoomInDialog() :
 	WindowDialog(L"ZOOMIN", L"zoomIn")
 {
+	SetSize(256, 256);
+	SetExtendStyle(WS_EX_TOPMOST);
+
 	memset(&m_viewRect, 0, sizeof(RECT));
 	m_indicateRect = {
 		10, 0, 140, 0
@@ -100,9 +103,9 @@ void zoomInDialog::OnPaint()
 	DrawIndicate();
 }
 
-void zoomInDialog::OnSetThemeMode()
+void zoomInDialog::OnSetColorMode()
 {
-	if (THEME_MODE::LIGHT_MODE == GetThemeMode()) {
+	if (CM::LIGHT == GetColorMode()) {
 		m_indicateBackgroundColor = RGB_TO_COLORF(ZINC_50);
 		m_indicateBorderColor = RGB_TO_COLORF(NEUTRAL_800);
 		m_selectedColor = RGB_TO_COLORF(ZINC_200);
