@@ -8,6 +8,14 @@ This Program was inspired by Programmer `Soungyub Kim`.
 
 The website he runs is under this link: https://cafe.naver.com/mythread
 
+---
+
+The first update version of zoomIn.exe which was implemented with the MFC library.
+
+In this version the AppTemplate library is used instead of the MFC library.
+
+The AppTemplate is a library to make Windows Desktop Application easier by using Direct2D Rendering and Win32-API.
+
 ## How to run
 
 Even if there is no virus, man can't download the executable file on website, so you must download the project and build it yourself.
