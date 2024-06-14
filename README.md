@@ -18,7 +18,7 @@ The AppTemplate is a library to make Windows Desktop Application easier by using
 
 ## How to run
 
-Even if there is no virus, man can't download the executable file on website, so you must download the project and build it yourself.
+Even if there is no virus, man can't download the executable file on website, so you must download the project and build as `x86` it yourself.
 
 And run zoomIn.exe. That's it!
 
